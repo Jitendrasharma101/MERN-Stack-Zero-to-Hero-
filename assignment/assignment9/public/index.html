@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To Do App</title>
+  <!-- Add your CSS styles here -->
+</head>
+<body>
+    <style>
+        body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.left-pane, .right-pane {
+  flex-basis: 45%;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 10px;
+}
+
+.task {
+  display: flex;
+  align-items: center; /* Align the checkbox, task title, and delete button vertically */
+  background-color: #f4f4f4;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.task input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.task.completed span {
+  text-decoration: line-through;
+}
+
+
+    /* </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          const taskList = document.getElementById('task-list');
+          const taskForm = document.getElementById('task-form');
+          const taskInput = document.getElementById('task-input');
+
+          function getTasksFromLocalStorage() {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            return tasks;
+          }
+
+          function saveTasksToLocalStorage(tasks) {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+          }
+
+          function createTaskElement(task) {
+            const li = document.createElement('li');
+            li.classList.add('task');
+
+           
+            const taskTitle = document.createElement('span');
+            taskTitle.textContent = task.title;
+            li.appendChild(taskTitle);
+
+            const taskCheckbox = document.createElement('input');
+            taskCheckbox.type = 'checkbox';
+            taskCheckbox.addEventListener('change', () => toggleTaskCompletion(task.id)); // Call the toggleTaskCompletion function when the checkbox is changed
+            li.appendChild(taskCheckbox);
+
+
+
+            const crossButton = document.createElement('button');
+            crossButton.textContent = 'X';
+            crossButton.addEventListener('click', () => removeTask(task.id)); // Call the removeTask function when the button is clicked
+            li.appendChild(crossButton);
+
+            if (task.completed) {
+              li.classList.add('completed');
+              taskCheckbox.checked = true; // Set the checkbox as checked if the task is already completed
+              taskTitle.style.textDecoration = 'line-through'; // Apply line-through style to the task title
+            }
+
+            return li;
+          }
+
+
+
+          function displayTasks(tasks) {
+            taskList.innerHTML = '';
+            tasks.forEach((task) => {
+              const taskElement = createTaskElement(task);
+              taskList.appendChild(taskElement);
+            });
+          }
+
+          function fetchTasks() {
+            const tasks = getTasksFromLocalStorage();
+            displayTasks(tasks.slice(0, 5)); // Display only the first 5 tasks as an example
+          }
+
+          function addTask(taskText) {
+            const newTask = {
+              id: Date.now(), // Generate a unique ID for the task
+              title: taskText,
+              completed: false,
+            };
+
+            const tasks = getTasksFromLocalStorage();
+            tasks.push(newTask);
+            saveTasksToLocalStorage(tasks);
+            displayTasks(tasks.slice(0, 5)); // Refresh the task list after adding
+            taskInput.value = '';
+          }
+          function toggleTaskCompletion(taskId) {
+            let tasks = getTasksFromLocalStorage();
+            tasks = tasks.map((task) => {
+              if (task.id === taskId) {
+                task.completed = !task.completed;
+              }
+              return task;
+            });
+            saveTasksToLocalStorage(tasks);
+            displayTasks(tasks.slice(0, 5));
+          }
+
+          function removeTask(taskId) {
+            let tasks = getTasksFromLocalStorage();
+            tasks = tasks.filter((task) => task.id !== taskId);
+            saveTasksToLocalStorage(tasks);
+            displayTasks(tasks.slice(0, 5)); // Refresh the task list after deletion
+          }
+
+          taskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const taskText = taskInput.value.trim();
+            if (taskText !== '') {
+              addTask(taskText);
+            }
+          });
+
+          fetchTasks();
+        });
+      </script> */
+      <!-- Your HTML code here -->
+
+        <script>
+          document.addEventListener('DOMContentLoaded', () => {
+            const taskList = document.getElementById('task-list');
+            const taskForm = document.getElementById('task-form');
+            const taskInput = document.getElementById('task-input');
+
+            function createTaskElement(task) {
+              const li = document.createElement('li');
+            li.classList.add('task');
+
+           
+            const taskTitle = document.createElement('span');
+            taskTitle.textContent = task.title;
+            li.appendChild(taskTitle);
+
+            const taskCheckbox = document.createElement('input');
+            taskCheckbox.type = 'checkbox';
+            taskCheckbox.addEventListener('change', () => toggleTaskCompletion(task.id)); // Call the toggleTaskCompletion function when the checkbox is changed
+            li.appendChild(taskCheckbox);
+
+
+
+            const crossButton = document.createElement('button');
+            crossButton.textContent = 'X';
+            crossButton.addEventListener('click', () => removeTask(task.id)); // Call the removeTask function when the button is clicked
+            li.appendChild(crossButton);
+
+            if (task.completed) {
+              li.classList.add('completed');
+              taskCheckbox.checked = true; // Set the checkbox as checked if the task is already completed
+              taskTitle.style.textDecoration = 'line-through'; // Apply line-through style to the task title
+            }
+
+            return li;
+            }
+
+            function displayTasks(tasks) {
+              taskList.innerHTML = '';
+              tasks.forEach((task) => {
+                const taskElement = createTaskElement(task);
+                taskList.appendChild(taskElement);
+              });
+            }
+
+            async function fetchTasks() {
+              try {
+                const response = await fetch('/tasks');
+                const data = await response.json();
+                displayTasks(data.slice(0, 5));
+              } catch (error) {
+                console.error('Error fetching tasks:', error);
+              }
+            }
+
+            async function addTask(taskText) {
+              const newTask = {
+                title: taskText,
+                completed: false,
+              };
+              try {
+                const response = await fetch('/tasks', {
+                  method: 'POST',
+                  headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                  },
+                  body: JSON.stringify(newTask),
+                });
+                const data = await response.json();
+                displayTasks(data);
+                taskInput.value = '';
+              } catch (error) {
+                console.error('Error adding task:', error);
+              }
+            }
+
+            async function toggleTaskCompletion(taskId) {
+              try {
+                await fetch(`/tasks/${taskId}`, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                  },
+                  body: JSON.stringify({ completed: true }), // Send the completed status as true
+                });
+                fetchTasks();
+              } catch (error) {
+                console.error('Error toggling task completion:', error);
+              }
+            }
+
+            async function removeTask(taskId) {
+              try {
+                await fetch(`/tasks/${taskId}`, {
+                  method: 'DELETE',
+                });
+                fetchTasks();
+              } catch (error) {
+                console.error('Error removing task:', error);
+              }
+            }
+
+            taskForm.addEventListener('submit', (e) => {
+              e.preventDefault();
+              const taskText = taskInput.value.trim();
+              if (taskText !== '') {
+                addTask(taskText);
+              }
+            });
+
+            fetchTasks();
+          });
+        </script>
+
+
+  <div class="container">
+    <div class="left-pane">
+      <h2>Tasks</h2>
+      <ul id="task-list">
+        <!-- Task items will be fetched and displayed here -->
+      </ul>
+    </div>
+    <div class="right-pane">
+      <h2>Add Task</h2>
+      <form id="task-form">
+        <input type="text" id="task-input" placeholder="Enter your task here">
+        <button type="submit">Add Task</button>
+      </form>
+    </div>
+  </div>
+  <!-- Add your JavaScript code here -->
+</body>
+</html>

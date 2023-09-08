@@ -1,0 +1,3 @@
+https://jsonplaceholder.typicode.com/posts
+https://api.openweathermap.org/data/2.5/weather?q=London&appid=YOUR_API_KEY
+https://randomuser.me/api/?results=5

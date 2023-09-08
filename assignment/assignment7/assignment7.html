@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Application</title>
+</head>
+<body>
+  <input type="text" id="usernameInput" placeholder="Enter username">
+  <button onclick="joinChat()">Join Chat</button>
+  <div id="chatRoom" style="display: none;">
+    <ul id="messages"></ul>
+    <input type="text" id="messageInput" placeholder="Type your message">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // Establish a connection with the server
+    const socket = io();
+
+    // Join the chat room
+    function joinChat() {
+      const username = document.getElementById('usernameInput').value;
+      socket.emit('join', username);
+
+      // Hide username input and display chat room
+      document.getElementById('usernameInput').style.display = 'none';
+      document.getElementById('chatRoom').style.display = 'block';
+    }
+
+    // Handle receiving a new message
+    socket.on('chat message', (data) => {
+      const { username, message } = data;
+      const item = document.createElement('li');
+      item.textContent = `${username}: ${message}`;
+      document.getElementById('messages').appendChild(item);
+    });
+
+    // Handle a user joining the chat
+    socket.on('user joined', (username) => {
+      const item = document.createElement('li');
+      item.textContent = `${username} joined the chat`;
+      document.getElementById('messages').appendChild(item);
+    });
+
+    // Handle a user leaving the chat
+    socket.on('user left', (username) => {
+      const item = document.createElement('li');
+      item.textContent = `${username} left the chat`;
+      document.getElementById('messages').appendChild(item);
+    });
+
+    // Send a new message
+    function sendMessage() {
+      const message = document.getElementById('messageInput').value;
+      socket.emit('chat message', message);
+      document.getElementById('messageInput').value = '';
+    }
+  </script>
+</body>
+</html>
